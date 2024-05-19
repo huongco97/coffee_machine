@@ -2,6 +2,7 @@ MENU = {
     "espresso": {
         "ingredients": {
             "water": 50,
+            "milk": 0,
             "coffee": 18,
         },
         "cost": 1.5,
@@ -29,67 +30,54 @@ resources = {
     "milk": 200,
     "coffee": 100,
 }
-
-
-# TODO: Print report
-def report(water, coffee, milk, money):
+def report(water, milk, coffee, money):
     print(f"Water: {water}ml \nMilk: {milk}ml \nCoffee: {coffee}g \nMoney: ${money}")
-
-
-# TODO: Process coins
 def calculate(q, d, n, p):
-    total = 0.25 * q + 0.1 * d + 0.05 * n + 0.01 * p
-    return float(total)
+    money = 0.25*q + 0.1*d + 0.05*n + 0.01*p
+    return money
 
+def check(drink):
+    if MENU[drink]['ingredients']['water'] > water:
+        print("Sorry there was not enough water.")
+        return False
+    elif MENU[drink]['ingredients']['milk'] > milk:
+        print("Sorry there was not enough milk.")
+        return False
+    elif MENU[drink]['ingredients']['coffee'] > coffee:
+        print("Sorry there was not enough coffee.")
+        return False
+    return True
+#     elif MENU[drink]['cost'] > money:
+#         print("Not enough money.")
+#         should_continue = False
 
-# TODO: Check resources sufficient
-# TODO: Check transaction successful
-is_sufficient = False
-def sufficient(choice, water, coffee, milk, money):
-    if MENU[choice]["ingredients"]["water"] > water:
-        print("Sorry there is not enough water.")
-        is_sufficient = False
-    elif MENU[choice]["ingredients"]["coffee"] > coffee:
-        print("Sorry there is not enough coffee.")
-        is_sufficient = False
-    elif MENU[choice]["ingredients"]["water"] > milk:
-        print("Sorry there is not enough milk.")
-        is_sufficient = False
-    else:
-        is_sufficient = True
-        quarter = int(input("Please insert coins. \nHow many quarters?: "))
-        dime = int(input("How many dimes?: "))
-        nickle = int(input("How many nickles?: "))
-        penny = int(input("How many pennies?: "))
-        inserted_coin = calculate(quarter, dime, nickle, penny)
-        change = inserted_coin - MENU[choice]["cost"]
-        if change < 0:
-            print("Sorry that's not enough money. Money refunded.")
-            is_sufficient = False
-        else:
-            print(f"Here is ${round(change, 2)} in change.")
-            print(f"Here is your {choice} ☕️. Enjoy!")
-    return is_sufficient
-
-# TODO: Prompt user by asking "What would you like?"
-# TODO: Turn off the CM be entering "off" to the prompt
-# TODO: Make coffee
 should_continue = True
+water = resources['water']
+milk = resources['milk']
+coffee = resources['coffee']
 money = 0
-water = resources["water"]
-milk = resources["milk"]
-coffee = resources["coffee"]
 while should_continue:
-    choice = input("What would like? (espresso/latte/cappuccino): ")
-    if choice == "off":
+    drink = input("What would you like? espresso/latte/cappuccino ")
+    if drink == 'off':
         should_continue = False
-    elif choice == "report":
-        report(water, coffee, milk, money)
-    elif sufficient(choice, water, coffee, milk, money) == True:
-        money += MENU[choice]["cost"]
-        water -= MENU[choice]["ingredients"]["water"]
-        if(choice != "espresso"):
-            milk -= MENU[choice]["ingredients"]["milk"]
-        coffee -= MENU[choice]["ingredients"]["coffee"]
-
-
+    elif drink == 'report':
+        report(water, milk, coffee, money)
+    else:
+        if check(drink):
+            print("Please insert coins.\n")
+            q = int(input("How many quarters? "))
+            d = int(input("How many dimes? "))
+            n = int(input("How many nickles? "))
+            p = int(input("How many pennies? "))
+            added = calculate(q,d,n,p)
+            if added >= MENU[drink]['cost']:
+                money += added
+                change = money - MENU[drink]['cost']
+                print(f"Here is ${round(change,2)} in change.\nHere is your {drink}. Enjoy!")
+                water = water - MENU[drink]['ingredients']['water']
+                milk = milk - MENU[drink]['ingredients']['milk']
+                coffee = coffee - MENU[drink]['ingredients']['coffee']
+                money = round(money-MENU[drink]['cost'],1)
+            else:
+                print("Sorry that's not enough money. Money refunded")
+                money += added
